@@ -8,7 +8,17 @@
  * {@link EnvValidationError} naming *every* offending variable (it collects all
  * problems instead of failing on the first one).
  *
- * Requirements: 7.4, 7.5
+ * The required auth secrets (`JWT_SECRET`, `REFRESH_SECRET`), the refresh-token
+ * lifetime (`REFRESH_EXPIRES_IN`), plus `DATABASE_URL` and `PORT` must all be
+ * present and non-blank at startup; any missing, empty, or whitespace-only value
+ * is reported as an offender (Req 10.6 is the source of truth for what causes a
+ * startup failure).
+ *
+ * `JWT_EXPIRES_IN` is deliberately NOT required: per Req 10.2 it defaults to
+ * {@link DEFAULT_JWT_EXPIRES_IN} (86400 seconds) when absent, empty, or
+ * whitespace-only, so a blank value must not abort startup.
+ *
+ * Requirements: 10.2, 10.6
  */
 
 /**
@@ -47,11 +57,23 @@ export class EnvValidationError extends Error {
   }
 }
 
-/** Required string variables that must be present and non-empty. */
+/**
+ * Default Access_Token lifetime (in seconds) applied when `JWT_EXPIRES_IN` is
+ * absent, empty, or whitespace-only (Req 10.2).
+ */
+export const DEFAULT_JWT_EXPIRES_IN = '86400';
+
+/**
+ * Required string variables that must be present and non-blank. A value that is
+ * missing, empty, or whitespace-only is treated as an offender and fails startup
+ * (Req 10.6).
+ *
+ * `JWT_EXPIRES_IN` is intentionally excluded: it is optional and defaults to
+ * {@link DEFAULT_JWT_EXPIRES_IN} rather than causing a startup failure (Req 10.2).
+ */
 const REQUIRED_STRING_VARS = [
   'DATABASE_URL',
   'JWT_SECRET',
-  'JWT_EXPIRES_IN',
   'REFRESH_SECRET',
   'REFRESH_EXPIRES_IN',
 ] as const;
@@ -84,6 +106,13 @@ export function validateEnv(env: EnvSource = process.env): Config {
       parsed[key] = value.trim();
     }
   }
+
+  // JWT_EXPIRES_IN: optional. Falls back to the default lifetime when absent,
+  // empty, or whitespace-only rather than being reported as an offender (Req 10.2).
+  const rawJwtExpiresIn = env.JWT_EXPIRES_IN;
+  parsed.JWT_EXPIRES_IN = isNonEmpty(rawJwtExpiresIn)
+    ? rawJwtExpiresIn.trim()
+    : DEFAULT_JWT_EXPIRES_IN;
 
   // PORT: required and must be a positive integer.
   const rawPort = env.PORT;

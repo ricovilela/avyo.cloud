@@ -1,0 +1,24 @@
+# Local development infrastructure for Avyo.
+# Provides a PostgreSQL 17 instance matching the locked stack (mvp-project.md).
+# Not used in production — Railway provides a managed Postgres plugin.
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: avyo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: avyo_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - avyo_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d avyo_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  avyo_pgdata:

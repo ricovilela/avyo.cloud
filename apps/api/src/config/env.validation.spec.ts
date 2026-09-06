@@ -104,6 +104,66 @@ describe('validateEnv', () => {
     });
   });
 
+  describe('when both auth secrets are missing (collect-all, Req 10.6)', () => {
+    it('reports BOTH JWT_SECRET and REFRESH_SECRET as offenders', () => {
+      const {
+        JWT_SECRET: _jwt,
+        REFRESH_SECRET: _refresh,
+        ...envWithoutSecrets
+      } = validEnv;
+
+      try {
+        validateEnv(envWithoutSecrets);
+        throw new Error('expected validateEnv to throw');
+      } catch (error) {
+        expect(error).toBeInstanceOf(EnvValidationError);
+        const validationError = error as EnvValidationError;
+        expect(validationError.variables).toEqual(
+          expect.arrayContaining(['JWT_SECRET', 'REFRESH_SECRET']),
+        );
+        expect(validationError.message).toContain('JWT_SECRET');
+        expect(validationError.message).toContain('REFRESH_SECRET');
+      }
+    });
+
+    it('treats empty and whitespace-only secrets as offenders too', () => {
+      const envWithBlankSecrets: EnvSource = {
+        ...validEnv,
+        JWT_SECRET: '',
+        REFRESH_SECRET: '   ',
+      };
+
+      try {
+        validateEnv(envWithBlankSecrets);
+        throw new Error('expected validateEnv to throw');
+      } catch (error) {
+        expect(error).toBeInstanceOf(EnvValidationError);
+        expect((error as EnvValidationError).variables).toEqual(
+          expect.arrayContaining(['JWT_SECRET', 'REFRESH_SECRET']),
+        );
+      }
+    });
+
+    it('does not report JWT_EXPIRES_IN as an offender when absent (defaults, Req 10.2)', () => {
+      const {
+        JWT_SECRET: _jwt,
+        REFRESH_SECRET: _refresh,
+        JWT_EXPIRES_IN: _expires,
+        ...envWithoutSecretsOrExpiry
+      } = validEnv;
+
+      try {
+        validateEnv(envWithoutSecretsOrExpiry);
+        throw new Error('expected validateEnv to throw');
+      } catch (error) {
+        expect(error).toBeInstanceOf(EnvValidationError);
+        expect((error as EnvValidationError).variables).not.toContain(
+          'JWT_EXPIRES_IN',
+        );
+      }
+    });
+  });
+
   describe('when multiple variables are invalid', () => {
     it('names every offending variable', () => {
       const brokenEnv: EnvSource = {
