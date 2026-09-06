@@ -1,0 +1,20 @@
+{
+  "name": "avyo",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:structure": "node --test \"test/**/*.test.mjs\"",
+    "build": "pnpm -r --filter \"./apps/*\" build"
+  },
+  "devDependencies": {
+    "typescript": ">=5.6 <6",
+    "eslint": "^9.15.0",
+    "prettier": "^3.4.1"
+  }
+}

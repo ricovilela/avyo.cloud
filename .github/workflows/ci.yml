@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    name: Lint, Typecheck, Test, Build (affected)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Full history so `...[origin/main]` can diff the PR against main.
+          fetch-depth: 0
+
+      - name: Ensure origin/main is available
+        run: git fetch --no-tags --prune origin main
+
+      - name: Set up pnpm
+        # Set up pnpm BEFORE Node so setup-node's pnpm cache can resolve the store.
+        # Version matches the root package.json `packageManager` (pnpm@9.15.0).
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint (affected)
+        run: pnpm --filter "...[origin/main]" lint
+
+      - name: Typecheck (affected)
+        run: pnpm --filter "...[origin/main]" typecheck
+
+      - name: Test (affected)
+        run: pnpm --filter "...[origin/main]" test
+
+      - name: Build (affected)
+        run: pnpm --filter "...[origin/main]" build

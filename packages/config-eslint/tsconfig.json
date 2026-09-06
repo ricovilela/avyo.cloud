@@ -1,0 +1,12 @@
+{
+  "extends": "@avyo/config-tsconfig/base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": true,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false
+  },
+  "include": ["index.mjs", "types.d.ts"]
+}

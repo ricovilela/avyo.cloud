@@ -1,0 +1,12 @@
+{
+  "name": "@avyo/config-tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "files": [
+    "base.json"
+  ],
+  "scripts": {
+    "lint": "echo \"@avyo/config-tsconfig: no sources to lint\" && exit 0",
+    "typecheck": "echo \"@avyo/config-tsconfig: no sources to typecheck\" && exit 0"
+  }
+}
