@@ -19,6 +19,31 @@ export enum age_group {
   adult = "adult",
 }
 
+// --- Color catalog contract shapes -----------------------------------------
+
+/**
+ * `GET /color-class` record shape (Req 7.1). Describes the on-the-wire
+ * (snake_case) contract asserted by both the API and the web app.
+ */
+export interface ColorClass {
+  id: string;
+  name: string;
+  code: string;
+}
+
+/**
+ * `GET /official-color` record shape (Req 7.1). Describes the on-the-wire
+ * (snake_case) contract asserted by both the API and the web app.
+ * `age_group` reuses the existing {@link age_group} enum (Req 7.2, 7.3).
+ */
+export interface OfficialColor {
+  id: string;
+  class_id: string;
+  age_group: age_group;
+  code: string;
+  title: string;
+}
+
 // --- Pagination envelope ----------------------------------------------------
 
 /** Pagination navigation links. `prev`/`next` are nullable. */

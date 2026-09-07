@@ -11,9 +11,8 @@
     "declarationMap": false,
     "isolatedModules": false,
     "outDir": "dist",
-    "rootDir": "src",
     "baseUrl": "."
   },
-  "include": ["src"],
+  "include": ["src", "prisma"],
   "exclude": ["node_modules", "dist", "test"]
 }

@@ -31,12 +31,13 @@ import { StatusModule } from './modules/status/status.module';
 
 const SRC_DIR = __dirname;
 
-/** The exactly-five subdirectories required under `src/common/` (Req 7.3). */
+/** The subdirectories required under `src/common/` (Req 7.3). */
 const EXPECTED_COMMON_SUBDIRS = [
   'decorators',
   'filters',
   'guards',
   'interceptors',
+  'pagination',
   'prisma',
 ].sort();
 
@@ -83,7 +84,7 @@ function directoriesIn(path: string): string[] {
 describe('src/common/ structure (Req 7.3)', () => {
   const commonDir = join(SRC_DIR, 'common');
 
-  it('contains exactly the five expected subdirectories', () => {
+  it('contains exactly the expected subdirectories', () => {
     expect(directoriesIn(commonDir)).toEqual(EXPECTED_COMMON_SUBDIRS);
   });
 });

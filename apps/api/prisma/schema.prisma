@@ -73,3 +73,42 @@ model PasswordResetToken {
   @@index([userId])
   @@map("password_reset_token")
 }
+
+/// Bird age group. Fixed domain — native Postgres enum (young/adult).
+enum age_group {
+  young
+  adult
+}
+
+/// Global/official color class. No user_id — shared across all tenants.
+model ColorClass {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @db.VarChar(255)
+  code      String   @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  officialColors OfficialColor[]
+
+  @@map("color_class")
+}
+
+/// Global/official bird color. No user_id — shared across all tenants.
+model OfficialColor {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  classId   String    @map("class_id") @db.Uuid
+  ageGroup  age_group @map("age_group")
+  code      String    @db.VarChar(50)
+  title     String    @db.VarChar(255)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  colorClass ColorClass @relation(fields: [classId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  // Req 3.7 / 3.5: a color may exist as both young and adult under one class,
+  // but (class_id, code, age_group) must be unique (duplicate detection).
+  @@unique([classId, code, ageGroup], name: "official_color_class_code_age_key")
+  // Req 3.2: index supports class_id filtering.
+  @@index([classId])
+  @@map("official_color")
+}

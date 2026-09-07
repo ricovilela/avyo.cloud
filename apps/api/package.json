@@ -49,8 +49,10 @@
   },
   "jest": {
     "testEnvironment": "node",
+    "maxWorkers": 1,
     "roots": [
-      "<rootDir>/src"
+      "<rootDir>/src",
+      "<rootDir>/prisma"
     ],
     "testRegex": ".*\\.spec\\.ts$",
     "moduleFileExtensions": [
